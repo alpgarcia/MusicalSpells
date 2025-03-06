@@ -26,7 +26,7 @@ Este juego combina elementos de memoria musical, reconocimiento de tonos y refle
 
 1. Clona este repositorio o descarga los archivos:
    ```bash
-   git clone https://github.com/tuusuario/MusicalSpells.git
+   git clone https://github.com/alpgarcia/MusicalSpells.git
    cd MusicalSpells
    ```
 
