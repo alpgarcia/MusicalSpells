@@ -18,37 +18,27 @@
  * i18n.js - Internationalization system for Musical Spells
  */
 
+import { TRANSLATIONS } from './translations/index.js';
+
 class I18nManager {
     constructor() {
         this.currentLanguage = 'es';
-        this.translations = {};
+        this.translations = TRANSLATIONS;
         this.initialized = false;
     }
 
     async init() {
         if (this.initialized) return;
 
-        try {
-            // Load available translations
-            const [es, en] = await Promise.all([
-                fetch('/i18n/es.json').then(r => r.json()),
-                fetch('/i18n/en.json').then(r => r.json())
-            ]);
-
-            this.translations = { es, en };
-            this.initialized = true;
-
-            // Use browser language if available
-            const browserLang = navigator.language.split('-')[0];
-            if (this.translations[browserLang]) {
-                this.currentLanguage = browserLang;
-            }
-
-            // Dispatch language changed event
-            this.dispatchLanguageChanged();
-        } catch (error) {
-            console.error('Error loading translations:', error);
+        // Use browser language if available
+        const browserLang = navigator.language.split('-')[0];
+        if (this.translations[browserLang]) {
+            this.currentLanguage = browserLang;
         }
+
+        this.initialized = true;
+        // Dispatch language changed event
+        this.dispatchLanguageChanged();
     }
 
     setLanguage(lang) {
