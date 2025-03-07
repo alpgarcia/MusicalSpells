@@ -608,8 +608,12 @@ export class Game {
 
     // Validar y mostrar la pantalla de inscripción
     validateAndShowInscription(score, level) {
-        if (!this.inscriptionScreen || !this.inscriptionScore || 
-            !this.inscriptionLevel || !this.inscriptionName) {
+        const inscriptionScreen = document.getElementById('inscription-screen');
+        const finalScore = document.querySelector('.final-score');
+        const finalLevel = document.querySelector('.final-level');
+        const inscriptionName = document.getElementById('inscription-name');
+        
+        if (!inscriptionScreen || !finalScore || !finalLevel || !inscriptionName) {
             console.error('Elementos de inscripción no encontrados');
             // Fallar graciosamente mostrando la pantalla de inicio
             this.ui.showScreen(this.ui.startScreen);
@@ -617,14 +621,18 @@ export class Game {
         }
         
         // Si todos los elementos existen, actualizamos y mostramos
-        this.inscriptionScore.textContent = ScoreManager.formatScore(score);
-        this.inscriptionLevel.textContent = level + 1;
-        this.inscriptionName.value = '';
-        this.ui.showScreen(this.ui.inscriptionScreen);
+        finalScore.textContent = i18n.t('hallOfFame.score', { 
+            score: ScoreManager.formatScore(score) 
+        });
+        finalLevel.textContent = i18n.t('hallOfFame.level', { 
+            level: level + 1 
+        });
+        inscriptionName.value = '';
+        this.ui.showScreen(inscriptionScreen);
         
         // Enfocar el campo de nombre
         setTimeout(() => {
-            this.inscriptionName.focus();
+            inscriptionName.focus();
         }, 100);
         
         return true;
