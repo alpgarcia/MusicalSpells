@@ -27,7 +27,9 @@ const SCORE_CONFIG = {
     // Puntos que se restan por fallar un hechizo
     SPELL_FAIL_PENALTY: -50,
     // Puntos extra por derrotar a un mago según su nivel
-    VICTORY_BONUS_BASE: 500
+    VICTORY_BONUS_BASE: 500,
+    // Multiplicador por usar nota de referencia
+    REFERENCE_NOTE_MULTIPLIER: 0.8
 };
 
 export class ScoreManager {
@@ -54,8 +56,11 @@ export class ScoreManager {
     }
 
     // Add points for successful spell
-    addSpellSuccess(enemyLevel) {
-        const points = Math.round(SCORE_CONFIG.SPELL_SUCCESS_BASE * (1 + enemyLevel * SCORE_CONFIG.LEVEL_MULTIPLIER));
+    addSpellSuccess(enemyLevel, useReferenceNote = false) {
+        const basePoints = Math.round(SCORE_CONFIG.SPELL_SUCCESS_BASE * (1 + enemyLevel * SCORE_CONFIG.LEVEL_MULTIPLIER));
+        const points = useReferenceNote ? 
+            Math.round(basePoints * SCORE_CONFIG.REFERENCE_NOTE_MULTIPLIER) : 
+            basePoints;
         this.currentScore += points;
         return this.currentScore;
     }
@@ -68,9 +73,12 @@ export class ScoreManager {
         return this.currentScore;
     }
 
-    // Add victory bonus
-    addVictoryBonus(enemyLevel) {
-        const bonus = SCORE_CONFIG.VICTORY_BONUS_BASE * (enemyLevel + 1);
+    // Add victory bonus with optional note reference penalty
+    addVictoryBonus(enemyLevel, useReferenceNote = false) {
+        const baseBonus = SCORE_CONFIG.VICTORY_BONUS_BASE * (enemyLevel + 1);
+        const bonus = useReferenceNote ? 
+            Math.round(baseBonus * SCORE_CONFIG.REFERENCE_NOTE_MULTIPLIER) : 
+            baseBonus;
         this.currentScore += bonus;
         return this.currentScore;
     }

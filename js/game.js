@@ -323,16 +323,16 @@ export class Game {
             this.state.enemyMaxHealth
         );
         
-        // Sumar puntos por hechizo exitoso
-        this.scoreManager.addSpellSuccess(this.state.currentEnemy.difficulty);
+        // Sumar puntos por hechizo exitoso - Pasar estado de nota de referencia
+        this.scoreManager.addSpellSuccess(this.state.currentEnemy.difficulty, this.state.playReferenceNote);
         this.updateBattleScore();
         
         if (this.state.enemyHealth <= 0) {
             this.state.isPlayerTurn = false;
             this.ui.setBattleMessage('battle.victory');
             
-            // Sumar bonus por victoria
-            this.scoreManager.addVictoryBonus(this.state.currentEnemy.difficulty);
+            // Sumar bonus por victoria - Pasar estado de nota de referencia
+            this.scoreManager.addVictoryBonus(this.state.currentEnemy.difficulty, this.state.playReferenceNote);
             this.updateBattleScore();
             
             // Retrasamos la transición para que se vea el mensaje
@@ -651,9 +651,6 @@ export class Game {
             this.inscriptionName.focus();
             return;
         }
-        
-        // Obtener la puntuación actual y el nivel
-        const score = this.scoreManager.getCurrentScore();
         
         // Guardar la puntuación
         this.scoreManager.addScore(this.state, playerName);
