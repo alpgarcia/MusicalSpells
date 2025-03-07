@@ -86,20 +86,21 @@ El juego se ejecutará en tu navegador y podrás comenzar a jugar inmediatamente
 
 El juego cuenta con un sistema de puntuación dinámico que tiene en cuenta varios factores:
 
-- **Puntos base**: 1000 puntos por cada nivel completado
-- **Bonus por salud**: 10 puntos adicionales por cada punto de vida restante
-- **Multiplicadores por dificultad**:
-  - Novato: x1
-  - Aprendiz: x1.5
-  - Adepto: x2
-  - Maestro: x3
-- **Modificador de referencia**: Si juegas con la nota de referencia activada, se aplica un multiplicador de 0.8 a la puntuación final
+- **Puntos base por hechizo**: 100 puntos por cada hechizo exitoso, multiplicado por (1 + nivel_enemigo * 0.5)
+- **Penalización por fallo**: -50 puntos por cada hechizo fallido
+- **Bonus por victoria**: 500 puntos multiplicados por (nivel_enemigo + 1) al derrotar a un mago
+- **Modificador de referencia**: Si juegas con la nota de referencia activada, se aplica un multiplicador de 0.8 a todos los puntos
 
-La puntuación se guarda en el Salón de la Fama en dos casos:
+Tu puntuación se muestra en tiempo real durante las batallas y en el mapa de progreso. Las puntuaciones se guardan en el Salón de la Fama en dos casos:
 1. Al completar todos los niveles y derrotar al Archimago Sinfónico
 2. Al ser derrotado, pero solo si has conseguido más de 0 puntos y tu puntuación es lo suficientemente alta para entrar en el top 10
 
-Durante el juego, puedes ver tu puntuación actual en el mapa de progreso, lo que te permite decidir si quieres repetir duelos anteriores para mejorar tu puntuación antes de enfrentarte a magos más poderosos.
+El Salón de la Fama registra:
+- Nombre del jugador
+- Puntuación total
+- Nivel alcanzado
+- Dificultad utilizada
+- Si se usó la nota de referencia
 
 ## Tecnologías utilizadas
 
@@ -131,13 +132,14 @@ MusicalSpells/
 │   ├── main.js      # Punto de entrada principal
 │   ├── game.js      # Lógica principal del juego
 │   ├── audio.js     # Gestión de audio y notas musicales
+│   ├── scores.js    # Sistema de puntuación y salón de la fama
 │   ├── ui.js        # Gestión de la interfaz de usuario
 │   ├── i18n.js      # Sistema de internacionalización
-│   └── enemies.js   # Configuración de enemigos
-│
-├── i18n/            # Archivos de traducción
-│   ├── en.json     # Traducciones al inglés
-│   └── es.json     # Traducciones al español
+│   ├── enemies.js   # Configuración de enemigos
+│   └── translations/ # Módulos de traducción
+│       ├── index.js # Exporta todas las traducciones
+│       ├── en.js    # Traducciones al inglés
+│       └── es.js    # Traducciones al español
 │
 ├── LICENSE          # Licencia GPL v3
 ├── TRANSLATIONS.md  # Guía para añadir nuevas traducciones

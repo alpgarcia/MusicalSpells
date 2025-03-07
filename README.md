@@ -88,20 +88,21 @@ The game will run in your browser and you can start playing immediately.
 
 The game features a dynamic scoring system that takes into account several factors:
 
-- **Base points**: 1000 points for each completed level
-- **Health bonus**: 10 additional points for each remaining health point
-- **Difficulty multipliers**:
-  - Novice: x1
-  - Apprentice: x1.5
-  - Adept: x2
-  - Master: x3
-- **Reference modifier**: If you play with the reference note enabled, a 0.8 multiplier is applied to the final score
+- **Base points per spell**: 100 points for each successful spell, multiplied by (1 + enemy_level * 0.5)
+- **Spell failure penalty**: -50 points for each failed spell
+- **Victory bonus**: 500 points multiplied by (enemy_level + 1) for defeating a wizard
+- **Reference note modifier**: If you play with the reference note enabled, a 0.8 multiplier is applied to all points
 
-Scores are saved to the Hall of Fame in two cases:
+Your score is tracked in real-time during battles and displayed on the progress map. High scores are saved to the Hall of Fame in two cases:
 1. Upon completing all levels and defeating the Symphonic Archmage
 2. Upon being defeated, but only if you've scored more than 0 points and your score is high enough to enter the top 10
 
-During the game, you can see your current score on the progress map, allowing you to decide if you want to repeat previous duels to improve your score before facing more powerful wizards.
+The Hall of Fame keeps track of:
+- Player name
+- Total score
+- Level reached
+- Difficulty setting used
+- Whether reference note was enabled
 
 ## Technologies Used
 
@@ -133,13 +134,14 @@ MusicalSpells/
 │   ├── main.js      # Main entry point
 │   ├── game.js      # Main game logic
 │   ├── audio.js     # Audio and musical notes management
+│   ├── scores.js    # Score system and hall of fame
 │   ├── ui.js        # User interface management
 │   ├── i18n.js      # Internationalization system
-│   └── enemies.js   # Enemy configuration
-│
-├── i18n/            # Translation files
-│   ├── en.json     # English translations
-│   └── es.json     # Spanish translations
+│   ├── enemies.js   # Enemy configuration
+│   └── translations/ # Translation modules
+│       ├── index.js # Exports all translations
+│       ├── en.js    # English translations
+│       └── es.js    # Spanish translations
 │
 ├── LICENSE          # GPL v3 License
 ├── TRANSLATIONS.md  # Guide for adding new translations
@@ -153,7 +155,6 @@ Musical Spells supports multiple languages through its internationalization syst
 
 ## Possible Future Improvements
 
-- Add bonus points when not using the reference note
 - Implement a combo system for consecutive successful spells
 
 - Story mode with dialogues and plot
