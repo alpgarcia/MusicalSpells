@@ -274,13 +274,7 @@ export class Game {
 
         const currentIndex = this.state.playerSequence.length - 1;
         
-        // Si ya tenemos todas las notas necesarias, ignorar pulsaciones adicionales
-        if (this.state.playerSequence.length > this.state.spellSequence.length) {
-            // Eliminar la última nota añadida
-            this.state.playerSequence.pop();
-            return;
-        }
-        
+        // Verificar si la nota actual es correcta
         if (this.state.playerSequence[currentIndex] !== this.state.spellSequence[currentIndex]) {
             // Marcar que hemos fallado para ignorar más entradas
             this.state.hasFailed = true;
@@ -296,7 +290,11 @@ export class Game {
             return;
         }
         
+        // Si la secuencia está completa y todas las notas son correctas
         if (this.state.playerSequence.length === this.state.spellSequence.length) {
+            // Desactivar los botones después de completar correctamente la secuencia
+            this.ui.toggleSpellButtons(false);
+            
             // Complete correct sequence - Wait a moment
             setTimeout(() => {
                 this.audio.playSoundEffect('success');

@@ -165,12 +165,20 @@ export class UIManager {
     // Set up spell button event listeners
     setupSpellButtonListeners(onSpellButtonClick) {
         this.spellBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
+            // Función común para manejar la interacción
+            const handleInteraction = () => {
                 // Evitar que el botón responda si está oculto
                 if (!btn.classList.contains('visible')) return;
                 
                 const note = btn.getAttribute('data-note');
                 onSpellButtonClick(note, btn);
+            };
+
+            // Añadir listeners para click y touch
+            btn.addEventListener('click', handleInteraction);
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevenir el click fantasma
+                handleInteraction();
             });
             
             // Prevent double tap zoom on mobile
