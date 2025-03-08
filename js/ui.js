@@ -229,7 +229,7 @@ export class UIManager {
 
     // Set up the result screen
     setResultScreen(titleKey, messageKey, showNextBattleBtn, replacements = {}) {
-        this.resultTitle.textContent = i18n.t(titleKey);
+        this.resultTitle.textContent = i18n.t(titleKey, replacements);
         this.resultMessage.textContent = i18n.t(messageKey, replacements);
         
         if (showNextBattleBtn) {

@@ -428,7 +428,7 @@ export class Game {
         
         // Configurar la pantalla de resultado con el mensaje apropiado
         this.ui.setResultScreen(
-            "defeat",
+            'battle.defeat',
             isHighScore ? 'battle.defeatHighScore' : 'battle.defeatNotHighScore',
             false,
             { 
