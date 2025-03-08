@@ -143,6 +143,11 @@ export class Game {
         this.state.defeatedEnemies = [];
         this.setupDifficulty();
         this.scoreManager.resetScore();  // Resetear la puntuación al empezar
+        
+        // Limpiar y reiniciar el mensaje de batalla
+        this.ui.setBattleMessage('battle.prepare');
+        
+        // Inicializar el mapa de progreso
         this.ui.initializeProgressMap(
             this.enemies, 
             this.state.currentLevel, 
@@ -168,6 +173,8 @@ export class Game {
         this.state.spellSequence = [];    // Limpiar la secuencia anterior
         this.state.playerSequence = [];   // Limpiar la secuencia del jugador
         
+        this.state.currentEnemy = this.enemies[index];
+        this.ui.setEnemyInfo(this.state.currentEnemy.id, this.state.currentEnemy.emoji);
         this.startLevel();
         this.ui.showScreen(this.ui.battleScreen);
     }
@@ -185,8 +192,8 @@ export class Game {
         this.state.enemyHealth = this.state.currentEnemy.health;
         this.state.enemyMaxHealth = this.state.currentEnemy.health;
         
-        // Update UI
-        this.ui.setEnemyInfo(this.state.currentEnemy.name, this.state.currentEnemy.emoji);
+        // Update UI - Pass enemy ID instead of translated name
+        this.ui.setEnemyInfo(this.state.currentEnemy.id, this.state.currentEnemy.emoji);
         this.ui.updateHealthBars(
             this.state.playerHealth, 
             this.state.playerMaxHealth, 
@@ -194,16 +201,16 @@ export class Game {
             this.state.enemyMaxHealth
         );
         this.ui.setBattleMessage('battle.prepare');
-        this.ui.toggleSpellButtons(false);  // Asegurarnos de que los botones están ocultos al inicio
+        this.ui.toggleSpellButtons(false);
         
         // Actualizar la puntuación en tiempo real
         this.updateBattleScore();
         
-        // Play reference note or start battle
-        if (this.state.playReferenceNote && this.state.availableNotes.length > 0) {
-            setTimeout(() => this.playReferenceNote(), 1000);
+        // Si está activada la nota de referencia, reproducirla antes de empezar
+        if (this.state.playReferenceNote) {
+            this.playReferenceNote();
         } else {
-            setTimeout(() => this.startEnemyTurn(), 1500);
+            this.startEnemyTurn();
         }
     }
 
@@ -220,7 +227,10 @@ export class Game {
     
     // Start enemy turn
     startEnemyTurn() {
-        this.ui.setBattleMessage('battle.enemyTurn', { enemy: this.state.currentEnemy.name });
+        this.ui.setBattleMessage('battle.enemyTurn', { 
+            enemy: i18n.t(`enemies.${this.state.currentEnemy.id}.name`),
+            enemyId: this.state.currentEnemy.id 
+        });
         this.state.isPlayerTurn = false;
         this.state.spellSequence = [];
         this.state.playerSequence = [];
@@ -363,9 +373,9 @@ export class Game {
                     );
                     this.ui.showScreen(this.ui.mapScreen);
                 }
-            }, 1500);
+            }, 2500); // Aumentado de 1500 a 2500 ms
         } else {
-            setTimeout(() => this.startEnemyTurn(), 1500);
+            setTimeout(() => this.startEnemyTurn(), 2500); // Aumentado de 1500 a 2500 ms
         }
     }
     
@@ -392,27 +402,45 @@ export class Game {
         this.updateBattleScore();
         
         if (this.state.playerHealth <= 0) {
-            // Agregamos un botón temporal para facilitar la transición
-            const continueButton = document.createElement('button');
-            continueButton.textContent = i18n.t('buttons.continue') || 'Continue';
-            continueButton.className = 'continue-btn';
-            continueButton.style.position = 'absolute';
-            continueButton.style.bottom = '20px';
-            continueButton.style.left = '50%';
-            continueButton.style.transform = 'translateX(-50%)';
-            continueButton.style.zIndex = '1000';
+            // Limpiar contenido existente
+            const battleMessage = document.getElementById('battle-message');
+            battleMessage.innerHTML = '';
             
-            continueButton.addEventListener('click', () => {
-                continueButton.remove();
-                this.forceDefeatTransition();
+            // Crear contenedor para el mensaje
+            const messageContainer = document.createElement('div');
+            messageContainer.className = 'battle-message-content';
+            
+            // Configurar el mensaje
+            battleMessage.dataset.i18n = 'battle.defeat';
+            battleMessage.dataset.enemyId = this.state.currentEnemy.id;
+            battleMessage.dataset.score = this.scoreManager.getCurrentScore();
+            
+            messageContainer.textContent = i18n.t('battle.defeat', {
+                enemy: i18n.t(`enemies.${this.state.currentEnemy.id}.name`),
+                score: this.scoreManager.getCurrentScore().toLocaleString()
             });
             
-            // Asegurarnos de que el botón sea visible
-            setTimeout(() => {
-                this.ui.battleScreen.appendChild(continueButton);
-            }, 1500);
+            // Crear contenedor del botón
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'continue-button-container';
+            
+            // Crear el botón
+            const continueButton = document.createElement('button');
+            continueButton.dataset.i18n = 'buttons.continue';
+            continueButton.textContent = i18n.t('buttons.continue');
+            continueButton.className = 'continue-btn';
+            
+            // Agregar los elementos al DOM
+            battleMessage.appendChild(messageContainer);
+            buttonContainer.appendChild(continueButton);
+            battleMessage.appendChild(buttonContainer);
+            
+            // Agregar el evento click
+            continueButton.addEventListener('click', () => {
+                this.forceDefeatTransition();
+            });
         } else {
-            setTimeout(() => this.startEnemyTurn(), 1500);
+            setTimeout(() => this.startEnemyTurn(), 2500); // Aumentado de 1500 a 2500 ms
         }
     }
     
@@ -430,7 +458,8 @@ export class Game {
             isHighScore ? 'battle.defeatHighScore' : 'battle.defeatNotHighScore',
             false,
             { 
-                enemy: this.state.currentEnemy.name,
+                enemy: i18n.t(`enemies.${this.state.currentEnemy.id}.name`),
+                enemyId: this.state.currentEnemy.id,
                 score: finalScore.toLocaleString()
             }
         );
@@ -452,6 +481,7 @@ export class Game {
         
         if (isHighScore) {
             const enterHallOfFameBtn = document.createElement('button');
+            enterHallOfFameBtn.dataset.i18n = 'buttons.enterHallOfFame';
             enterHallOfFameBtn.textContent = i18n.t('buttons.enterHallOfFame');
             // Usar bind para asegurar el contexto correcto de 'this'
             const boundShowInscription = () => this.showInscriptionScreen(finalScore, this.state.currentLevel);
@@ -461,6 +491,7 @@ export class Game {
         
         // Siempre añadir el botón de volver al inicio
         const returnBtn = document.createElement('button');
+        returnBtn.dataset.i18n = 'buttons.returnToStart';
         returnBtn.textContent = i18n.t('buttons.returnToStart');
         returnBtn.addEventListener('click', () => {
             this.ui.showScreen(this.ui.startScreen);
@@ -497,7 +528,10 @@ export class Game {
                 'victory',
                 'battle.victory',
                 true,
-                { enemy: this.state.currentEnemy.name }
+                { 
+                    enemy: i18n.t(`enemies.${this.state.currentEnemy.id}.name`),
+                    enemyId: this.state.currentEnemy.id
+                }
             );
         }
         
@@ -607,24 +641,21 @@ export class Game {
     // Validar y mostrar la pantalla de inscripción
     validateAndShowInscription(score, level) {
         const inscriptionScreen = document.getElementById('inscription-screen');
-        const finalScore = document.querySelector('.final-score');
-        const finalLevel = document.querySelector('.final-level');
+        const scoreValue = document.querySelector('.final-score .score-value');
+        const levelValue = document.querySelector('.final-level .level-value');
         const inscriptionName = document.getElementById('inscription-name');
         
-        if (!inscriptionScreen || !finalScore || !finalLevel || !inscriptionName) {
+        if (!inscriptionScreen || !scoreValue || !levelValue || !inscriptionName) {
             console.error('Elementos de inscripción no encontrados');
             // Fallar graciosamente mostrando la pantalla de inicio
             this.ui.showScreen(this.ui.startScreen);
             return false;
         }
         
-        // Si todos los elementos existen, actualizamos y mostramos
-        finalScore.textContent = i18n.t('hallOfFame.score', { 
-            score: ScoreManager.formatScore(score) 
-        });
-        finalLevel.textContent = i18n.t('hallOfFame.level', { 
-            level: level + 1 
-        });
+        // Actualizar los valores directamente
+        scoreValue.textContent = ScoreManager.formatScore(score);
+        levelValue.textContent = level + 1;
+        
         inscriptionName.value = '';
         this.ui.showScreen(inscriptionScreen);
         

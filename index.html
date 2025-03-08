@@ -107,7 +107,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <div class="game-screen hidden" id="battle-screen">
             <div class="battle-info">
                 <div class="player-stats">
-                    <h3>Aprendiz</h3>
+                    <h3 data-i18n="game.playerTitle">Aprendiz</h3>
                     <div class="health-bar">
                         <div id="player-health" class="health-fill"></div>
                     </div>
@@ -165,8 +165,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             <h3 data-i18n="screens.inscription.subtitle">Donde las Leyendas Perduran</h3>
             
             <div class="inscription-area">
-                <p class="final-score" data-i18n="hallOfFame.score">Poder mágico acumulado: </p>
-                <p class="final-level" data-i18n="hallOfFame.level">Nivel de maestría alcanzado: </p>
+                <p class="final-score">
+                    <span class="score-label" data-i18n="hallOfFame.scoreLabel">Poder mágico acumulado:</span>
+                    <span class="score-value"></span>
+                </p>
+                <p class="final-level">
+                    <span class="level-label" data-i18n="hallOfFame.levelLabel">Nivel de maestría alcanzado:</span>
+                    <span class="level-value"></span>
+                </p>
                 
                 <div class="inscription-form">
                     <p data-i18n="screens.inscription.instruction">Con tu varita mágica, inscribe tu nombre en el antiguo muro...</p>
@@ -185,8 +191,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
                 <h2 data-i18n="hallOfFame.newHighScore">¡Nueva Puntuación Alta!</h2>
                 <p data-i18n="hallOfFame.hallOfFameEntry">Has conseguido entrar en el Salón de la Fama</p>
                 <div class="score-info">
-                    <p><span data-i18n="hallOfFame.score">Puntuación:</span> <span id="final-score">0</span></p>
-                    <p><span data-i18n="hallOfFame.level">Nivel alcanzado:</span> <span id="final-level">0</span></p>
+                    <p><span data-i18n="hallOfFame.scoreLabel">Poder mágico acumulado:</span> <span id="final-score">0</span></p>
+                    <p><span data-i18n="hallOfFame.levelLabel">Nivel de maestría alcanzado:</span> <span id="final-level">0</span></p>
                 </div>
                 <div class="input-group">
                     <label for="player-name" data-i18n="hallOfFame.enterName">Ingresa tu nombre:</label>

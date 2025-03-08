@@ -104,13 +104,79 @@ export class UIManager {
         // Translate elements with data-i18n
         document.querySelectorAll('[data-i18n]').forEach(element => {
             const key = element.getAttribute('data-i18n');
-            element.textContent = i18n.t(key);
+            
+            // Skip battle message if it contains the continue button
+            if (element.id === 'battle-message' && element.querySelector('.continue-btn')) {
+                // Reuse setBattleMessage to handle the translation preserving structure
+                const replacements = {};
+                if (element.dataset.enemyId) {
+                    replacements.enemyId = element.dataset.enemyId;
+                    replacements.enemy = i18n.t(`enemies.${element.dataset.enemyId}.name`);
+                }
+                if (element.dataset.score) {
+                    replacements.score = element.dataset.score;
+                }
+                if (element.dataset.damage) {
+                    replacements.damage = element.dataset.damage;
+                }
+                this.setBattleMessage(key, replacements);
+                return;
+            }
+            
+            // Check for dynamic values in data attributes
+            const replacements = {};
+            
+            // Handle score
+            if (element.dataset.score !== undefined) {
+                replacements.score = element.dataset.score;
+                // Formatear el score si es un número
+                if (!isNaN(element.dataset.score)) {
+                    replacements.score = parseInt(element.dataset.score).toLocaleString();
+                }
+            }
+            
+            // Handle level number
+            if (element.dataset.number !== undefined) {
+                replacements.number = element.dataset.number;
+            }
+            
+            // Handle custom level (para la pantalla de inscripción)
+            if (element.dataset.level !== undefined) {
+                replacements.level = element.dataset.level;
+            }
+            
+            // Handle enemy name with special case for battle and map messages
+            if ((key === 'battle.enemyTurn' || key === 'map.nextDuel' || key === 'battle.defeat') && element.dataset.enemyId) {
+                replacements.enemy = i18n.t(`enemies.${element.dataset.enemyId}.name`);
+            } else if (element.dataset.enemy !== undefined) {
+                replacements.enemy = element.dataset.enemy;
+            }
+            
+            // Handle difficulty
+            if (element.dataset.difficulty !== undefined) {
+                replacements.difficulty = element.dataset.difficulty;
+            }
+
+            // Handle damage
+            if (element.dataset.damage !== undefined) {
+                replacements.damage = element.dataset.damage;
+            }
+            
+            // Translate with replacements if any exist
+            element.textContent = i18n.t(key, Object.keys(replacements).length > 0 ? replacements : undefined);
         });
 
         // Translate placeholders
         document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
             const key = element.getAttribute('data-i18n-placeholder');
             element.placeholder = i18n.t(key);
+        });
+
+        // Translate continue buttons specifically
+        document.querySelectorAll('.continue-btn').forEach(button => {
+            if (button.dataset.i18n) {
+                button.textContent = i18n.t(button.dataset.i18n);
+            }
         });
     }
 
@@ -196,6 +262,19 @@ export class UIManager {
         this.resultScreen.classList.add('hidden');
         this.inscriptionScreen.classList.add('hidden');
         
+        // Si estamos saliendo de la pantalla de batalla, limpiar el mensaje
+        if (screen !== this.battleScreen) {
+            this.setBattleMessage('battle.prepare');
+        }
+        
+        // Si estamos mostrando la pantalla de inscripción, asegurar que los placeholders estén traducidos
+        if (screen === this.inscriptionScreen) {
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                element.placeholder = i18n.t(key);
+            });
+        }
+        
         screen.classList.remove('hidden');
     }
 
@@ -235,17 +314,95 @@ export class UIManager {
 
     // Show a message on the battle screen
     setBattleMessage(messageKey, replacements = {}) {
-        this.battleMessage.textContent = i18n.t(messageKey, replacements);
+        // Si el mensaje contiene una estructura específica (como el botón de continuar),
+        // necesitamos preservarla
+        const continueBtn = this.battleMessage.querySelector('.continue-btn');
+        
+        // Limpiar el contenido anterior y los data attributes
+        this.battleMessage.innerHTML = '';
+        for (const key of Object.keys(this.battleMessage.dataset)) {
+            if (key !== 'i18n') {
+                delete this.battleMessage.dataset[key];
+            }
+        }
+        
+        // Establecer el nuevo mensaje
+        this.battleMessage.dataset.i18n = messageKey;
+        
+        // Store dynamic values in data attributes
+        for (const [key, value] of Object.entries(replacements)) {
+            this.battleMessage.dataset[key] = value;
+            if ((messageKey === 'battle.enemyTurn' || messageKey === 'battle.defeat') && 
+                key === 'enemy' && replacements.enemyId) {
+                this.battleMessage.dataset.enemyId = replacements.enemyId;
+            }
+        }
+        
+        // Traducir el mensaje
+        let translatedMessage = i18n.t(messageKey, replacements);
+        
+        // Si teníamos un botón de continuar y estamos mostrando el mensaje de derrota,
+        // necesitamos preservar la estructura
+        if (continueBtn && messageKey === 'battle.defeat') {
+            const container = document.createElement('div');
+            container.className = 'battle-message-content';
+            container.textContent = translatedMessage;
+            
+            // Restaurar el botón
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'continue-button-container';
+            buttonContainer.appendChild(continueBtn);
+            
+            this.battleMessage.appendChild(container);
+            this.battleMessage.appendChild(buttonContainer);
+        } else {
+            // Para cualquier otro mensaje, simplemente mostrar el texto
+            this.battleMessage.textContent = translatedMessage;
+        }
     }
 
     // Set enemy information
     setEnemyInfo(name, emoji) {
-        this.enemyName.textContent = name;
+        this.enemyName.dataset.i18n = `enemies.${name}.name`;
+        this.enemyName.textContent = i18n.t(`enemies.${name}.name`);
         this.enemyImage.textContent = emoji;
     }
 
     // Set up the result screen
     setResultScreen(titleKey, messageKey, showNextBattleBtn, replacements = {}) {
+        this.resultTitle.dataset.i18n = titleKey;
+        this.resultMessage.dataset.i18n = messageKey;
+        
+        // Clear any existing dynamic data attributes
+        for (const key of Object.keys(this.resultTitle.dataset)) {
+            if (key !== 'i18n') {
+                delete this.resultTitle.dataset[key];
+            }
+        }
+        for (const key of Object.keys(this.resultMessage.dataset)) {
+            if (key !== 'i18n') {
+                delete this.resultMessage.dataset[key];
+            }
+        }
+        
+        // Store dynamic values in data attributes
+        for (const [key, value] of Object.entries(replacements)) {
+            this.resultTitle.dataset[key] = value;
+            this.resultMessage.dataset[key] = value;
+            
+            // If this is a battle message and we have an enemyId, store it
+            if (key === 'enemy' && replacements.enemyId) {
+                this.resultTitle.dataset.enemyId = replacements.enemyId;
+                this.resultMessage.dataset.enemyId = replacements.enemyId;
+            }
+        }
+        
+        // If we have a stored enemy ID and this is a battle message
+        if ((messageKey.startsWith('battle.') || titleKey.startsWith('battle.')) && 
+            this.resultMessage.dataset.enemyId) {
+            replacements.enemy = i18n.t(`enemies.${this.resultMessage.dataset.enemyId}.name`);
+        }
+        
         this.resultTitle.textContent = i18n.t(titleKey, replacements);
         this.resultMessage.textContent = i18n.t(messageKey, replacements);
         
@@ -307,7 +464,11 @@ export class UIManager {
         // Add current score indicator before enemies container
         const scoreDisplay = document.createElement('div');
         scoreDisplay.className = 'current-score';
-        scoreDisplay.textContent = `${i18n.t('map.currentScore', { score: currentScore.toLocaleString() })}`;
+        const scoreSpan = document.createElement('span');
+        scoreSpan.dataset.i18n = 'map.currentScore';
+        scoreSpan.dataset.score = currentScore;
+        scoreSpan.textContent = i18n.t('map.currentScore', { score: currentScore.toLocaleString() });
+        scoreDisplay.appendChild(scoreSpan);
         progressMap.insertBefore(scoreDisplay, enemiesMap);
         
         // Create markers for each enemy
@@ -333,11 +494,14 @@ export class UIManager {
             // Create enemy name
             const enemyName = document.createElement('div');
             enemyName.className = 'enemy-name';
+            enemyName.dataset.i18n = `enemies.${enemy.id}.name`;
             enemyName.textContent = enemy.name;
             
-            // Create enemy level with new translation format
+            // Create enemy level
             const enemyLevel = document.createElement('div');
             enemyLevel.className = 'enemy-level';
+            enemyLevel.dataset.i18n = 'map.level';
+            enemyLevel.dataset.number = index + 1;
             enemyLevel.textContent = i18n.t('map.level', { number: index + 1 });
             
             // Build marker
@@ -363,13 +527,17 @@ export class UIManager {
         const mapDescription = document.getElementById('map-description');
         
         if (currentLevel >= enemies.length) {
+            mapDescription.dataset.i18n = 'map.allDefeated';
             mapDescription.textContent = i18n.t('map.allDefeated');
             return;
         }
         
         const nextEnemy = enemies[currentLevel];
+        mapDescription.dataset.i18n = 'map.nextDuel';
+        mapDescription.dataset.enemyId = nextEnemy.id;
+        mapDescription.dataset.difficulty = '★'.repeat(nextEnemy.difficulty);
         mapDescription.textContent = i18n.t('map.nextDuel', {
-            enemy: nextEnemy.name,
+            enemy: i18n.t(`enemies.${nextEnemy.id}.name`),
             difficulty: '★'.repeat(nextEnemy.difficulty)
         });
     }

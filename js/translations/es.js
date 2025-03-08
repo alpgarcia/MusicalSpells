@@ -23,7 +23,8 @@ export const spanishTranslations = {
         "title": "Musical Spells",
         "subtitle": "El Duelo de Magos Musicales",
         "description": "Eres un aprendiz de mago que debe enfrentarse a otros hechiceros en duelos musicales.",
-        "instructions": "Escucha y repite las secuencias musicales para derrotar a tus oponentes."
+        "instructions": "Escucha y repite las secuencias musicales para derrotar a tus oponentes.",
+        "playerTitle": "Aprendiz"
     },
     "difficulty": {
         "title": "Selecciona la dificultad:",
@@ -73,8 +74,8 @@ export const spanishTranslations = {
         "title": "Muro de la Hechicería",
         "newHighScore": "¡Un Nuevo Poder Mágico!",
         "hallOfFameEntry": "Tu dominio de la magia musical merece un lugar en el Muro de la Hechicería",
-        "score": "Poder mágico acumulado: {score}",
-        "level": "Nivel de maestría alcanzado: {level}",
+        "scoreLabel": "Poder mágico acumulado:",
+        "levelLabel": "Nivel de maestría alcanzado:",
         "enterName": "Inscribe tu nombre mágico:",
         "enterNameAlert": "Debes inscribir tu nombre para que tu leyenda perdure",
         "namePlaceholder": "Tu nombre mágico",

@@ -6,6 +6,9 @@ Musical Spells es un juego musical de memoria y reflejos donde encarnas a un apr
 
 Este juego combina elementos de memoria musical, reconocimiento de tonos y reflejos rápidos, todo envuelto en una temática mágica y divertida.
 
+## Historial de Versiones
+Consulta nuestro [Changelog](CHANGELOG.es.md) para ver el historial completo de cambios. También disponible en [inglés](CHANGELOG.md).
+
 ## Características
 
 - **Sistema de duelos por turnos**: Escucha y repite la secuencia de notas para atacar a tu oponente.
@@ -142,6 +145,8 @@ MusicalSpells/
 │       └── es.js    # Traducciones al español
 │
 ├── LICENSE          # Licencia GPL v3
+├── CHANGELOG.md     # Historial de cambios (inglés)
+├── CHANGELOG.es.md  # Historial de cambios (español)
 ├── TRANSLATIONS.md  # Guía para añadir nuevas traducciones
 ├── README.md        # Archivo en inglés
 └── README.es.md     # Este archivo (español)

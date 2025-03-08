@@ -23,7 +23,8 @@ export const englishTranslations = {
         "title": "Musical Spells",
         "subtitle": "The Wizards' Duel",
         "description": "You are a wizard apprentice who must face other sorcerers in musical duels.",
-        "instructions": "Listen and repeat the musical sequences to defeat your opponents."
+        "instructions": "Listen and repeat the musical sequences to defeat your opponents.",
+        "playerTitle": "Apprentice"
     },
     "difficulty": {
         "title": "Select difficulty:",
@@ -73,8 +74,8 @@ export const englishTranslations = {
         "title": "Wall of Sorcery",
         "newHighScore": "A New Magical Power!",
         "hallOfFameEntry": "Your mastery of musical magic deserves a place on the Wall of Sorcery",
-        "score": "Accumulated magical power: {score}",
-        "level": "Mastery level reached: {level}",
+        "scoreLabel": "Accumulated magical power:",
+        "levelLabel": "Mastery level reached:",
         "enterName": "Inscribe your magical name:",
         "enterNameAlert": "You must inscribe your name for your legend to endure",
         "namePlaceholder": "Your magical name",

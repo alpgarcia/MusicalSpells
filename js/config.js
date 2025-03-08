@@ -19,6 +19,6 @@
  */
 
 // Versión del juego - Modificar esta constante para actualizar la versión en toda la aplicación
-export const GAME_VERSION = '0.5.0-beta';
+export const GAME_VERSION = '0.5.2-beta';
 
 // Aquí se pueden añadir más configuraciones globales del juego en el futuro

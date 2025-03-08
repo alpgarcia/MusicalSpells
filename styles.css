@@ -176,6 +176,10 @@ button:hover {
     min-height: 2em;
 }
 
+.battle-message-content {
+    margin-bottom: 15px;
+}
+
 #result-screen h2 {
     font-size: 2em;
     margin-bottom: 20px;
@@ -669,11 +673,22 @@ input:checked + .toggle-slider:before {
     font-size: 1.2em;
     margin: 10px 0;
     color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
 }
 
-.final-score span:last-child, .final-level span:last-child {
+.score-label, .level-label {
+    color: white;
+}
+
+.score-value, .level-value {
     color: #fdbb2d;
     font-weight: bold;
+    text-align: right;
+    flex-shrink: 0;
+    min-width: 100px;
 }
 
 .inscription-form {
@@ -756,4 +771,31 @@ input:checked + .toggle-slider:before {
 .game-footer p {
     margin: 0;
     text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.continue-btn {
+    background-color: #fdbb2d;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+}
+
+.continue-btn:hover {
+    transform: scale(1.05);
+    background-color: #ffca5a;
+}
+
+.continue-button-container {
+    margin-top: 20px;
+}
+
+.defeat-message {
+    color: white;
+    margin-bottom: 10px;
 }

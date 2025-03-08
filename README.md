@@ -8,6 +8,9 @@ Musical Spells is a musical memory and reflex game where you play as a wizard ap
 
 This game combines elements of musical memory, tone recognition, and quick reflexes, all wrapped in a magical and fun theme.
 
+## Version History
+Check our [Changelog](CHANGELOG.md) to see the full history of changes. A Spanish version is also available at [CHANGELOG.es.md](CHANGELOG.es.md).
+
 ## Features
 
 - **Turn-based duel system**: Listen and repeat the note sequence to attack your opponent.
@@ -144,6 +147,8 @@ MusicalSpells/
 │       └── es.js    # Spanish translations
 │
 ├── LICENSE          # GPL v3 License
+├── CHANGELOG.md     # Change history (English)
+├── CHANGELOG.es.md  # Change history (Spanish)
 ├── TRANSLATIONS.md  # Guide for adding new translations
 ├── README.md        # This file (English)
 └── README.es.md     # Spanish version
