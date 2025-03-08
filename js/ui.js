@@ -19,6 +19,7 @@
  */
 
 import { i18n } from './i18n.js';
+import { GAME_VERSION } from './config.js';
 
 // Class to handle the user interface
 export class UIManager {
@@ -58,12 +59,20 @@ export class UIManager {
 
         // Language selector reference
         this.languageSelector = document.querySelector('.language-selector');
+
+        // Version reference
+        this.versionSpan = document.getElementById('game-version');
     }
 
     // Initialize the UI
     async init() {
         // Initialize translations first
         await this.initTranslations();
+
+        // Initialize version number
+        if (this.versionSpan) {
+            this.versionSpan.textContent = GAME_VERSION;
+        }
 
         // Set up language buttons
         if (this.languageSelector) {
