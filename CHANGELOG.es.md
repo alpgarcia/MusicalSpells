@@ -10,7 +10,7 @@ y este proyecto se adhiere a [Versionado Semántico](https://semver.org/lang/es/
 >
 > Esta doble ubicación es necesaria porque `package.json` no es accesible en el navegador cuando se despliega en GitHub Pages, mientras que `config.js` asegura que la versión siempre sea visible para los usuarios independientemente del entorno de despliegue.
 
-## [0.6.0-beta] - 2025-03-09
+## [0.6.0-beta] - 2025-03-14
 ### Añadido
 - Cobertura completa de tests unitarios para todos los componentes principales:
   - Cobertura general: 95.4% sentencias, 92.43% ramas, 94.93% funciones

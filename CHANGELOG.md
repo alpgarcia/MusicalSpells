@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 >
 > This dual location is necessary because `package.json` is not accessible in the browser when deployed to GitHub Pages, while `config.js` ensures the version is always visible to users regardless of deployment environment.
 
-## [0.6.0-beta] - 2025-03-09
+## [0.6.0-beta] - 2025-03-14
 ### Added
 - Complete unit test coverage for all major components:
   - Overall coverage: 95.4% statements, 92.43% branches, 94.93% functions
