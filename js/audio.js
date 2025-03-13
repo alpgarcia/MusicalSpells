@@ -46,6 +46,7 @@ export const KEYBOARD_MAPPING = {
 export class AudioManager {
     constructor() {
         this.audioContext = null;
+        this.buttonEffectTimers = new Map();
     }
 
     // Initialize the audio context
@@ -73,16 +74,23 @@ export class AudioManager {
         gainNode.gain.linearRampToValueAtTime(0.3, now + duration - 0.05);
         gainNode.gain.linearRampToValueAtTime(0, now + duration);
         
-        // Start and stop
         oscillator.start();
         oscillator.stop(now + duration);
         
         // If a button is provided, add visual effect
         if (noteButton) {
+            // Clear any existing timer for this button
+            if (this.buttonEffectTimers.has(noteButton)) {
+                clearTimeout(this.buttonEffectTimers.get(noteButton));
+            }
+            
             noteButton.classList.add('active');
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 noteButton.classList.remove('active');
+                this.buttonEffectTimers.delete(noteButton);
             }, duration * 1000);
+            
+            this.buttonEffectTimers.set(noteButton, timer);
         }
     }
 
@@ -137,5 +145,13 @@ export class AudioManager {
                 oscillator.stop(now + 0.3);
                 break;
         }
+    }
+
+    // Clean up timers
+    cleanup() {
+        for (const timer of this.buttonEffectTimers.values()) {
+            clearTimeout(timer);
+        }
+        this.buttonEffectTimers.clear();
     }
 }

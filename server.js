@@ -17,13 +17,11 @@
  *
  * server.js - Simple development server for Musical Spells
  */
-
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import { readFile } from 'fs/promises';
+import { extname } from 'path';
 
 const PORT = 3000;
-
 const MIME_TYPES = {
     '.html': 'text/html',
     '.js': 'text/javascript',
@@ -36,27 +34,27 @@ const MIME_TYPES = {
     '.ico': 'image/x-icon'
 };
 
-const server = http.createServer((req, res) => {
-    // If URL is '/', serve index.html
-    let filePath = req.url === '/' ? './index.html' : '.' + req.url;
-    
-    const extname = path.extname(filePath);
-    let contentType = MIME_TYPES[extname] || 'application/octet-stream';
-    
-    fs.readFile(filePath, (error, content) => {
-        if (error) {
-            if(error.code === 'ENOENT') {
-                res.writeHead(404);
-                res.end('404 - File Not Found');
-            } else {
-                res.writeHead(500);
-                res.end('500 - Internal Server Error');
-            }
+const server = http.createServer(async (req, res) => {
+    try {
+        // If URL is '/', serve index.html
+        let filePath = req.url === '/' ? './index.html' : '.' + req.url;
+        
+        const ext = extname(filePath);
+        let contentType = MIME_TYPES[ext] || 'application/octet-stream';
+        
+        const content = await readFile(filePath);
+        res.writeHead(200, { 'Content-Type': contentType });
+        res.end(content, 'utf-8');
+    } catch (error) {
+        if(error.code === 'ENOENT') {
+            res.writeHead(404);
+            res.end('404 - File Not Found');
         } else {
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content, 'utf-8');
+            console.error(error);
+            res.writeHead(500);
+            res.end('500 - Internal Server Error');
         }
-    });
+    }
 });
 
 server.listen(PORT, () => {

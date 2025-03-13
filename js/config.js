@@ -19,6 +19,13 @@
  */
 
 // Versión del juego - Modificar esta constante para actualizar la versión en toda la aplicación
-export const GAME_VERSION = '0.5.2-beta';
+export const GAME_VERSION = '0.6.0-beta';
+
+// Configuración del modo desarrollador
+export const DEVELOPER_MODE = {
+    enabled: false,  // Cambiar a true para permitir activar el modo desarrollador
+    toggleKey: 'F2', // Tecla para activar/desactivar el modo desarrollador durante el juego
+    autoCompleteKey: 'x'  // Tecla para completar hechizos automáticamente
+};
 
 // Aquí se pueden añadir más configuraciones globales del juego en el futuro

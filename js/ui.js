@@ -62,12 +62,14 @@ export class UIManager {
 
         // Version reference
         this.versionSpan = document.getElementById('game-version');
+
+        this.magicEffectTimer = null;
     }
 
     // Initialize the UI
     async init() {
-        // Initialize translations first
-        await this.initTranslations();
+        // Wait for i18n initialization
+        await i18n.init();
 
         // Initialize version number
         if (this.versionSpan) {
@@ -84,18 +86,19 @@ export class UIManager {
                     this.updateLanguageButtons();
                 }
             });
+            // Update language buttons after setting up the listener
+            this.updateLanguageButtons();
         }
-    }
 
-    // Initialize translation system
-    async initTranslations() {
-        await i18n.init();
-        this.updateLanguageButtons();
+        // Initialize translations
         this.translateInterface();
         
         // Listen for language changes
         window.addEventListener('languageChanged', () => {
             this.translateInterface();
+            if (this.languageSelector) {
+                this.updateLanguageButtons();
+            }
         });
     }
 
@@ -182,6 +185,8 @@ export class UIManager {
 
     // Update language buttons
     updateLanguageButtons() {
+        if (!this.languageSelector) return;
+        
         const currentLang = i18n.getCurrentLanguage();
         this.languageSelector.querySelectorAll('.lang-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.lang === currentLang);
@@ -442,8 +447,14 @@ export class UIManager {
         magicEffect.textContent = '✨';
         battleArea.appendChild(magicEffect);
         
-        setTimeout(() => {
+        // Clear any existing timer
+        if (this.magicEffectTimer) {
+            clearTimeout(this.magicEffectTimer);
+        }
+        
+        this.magicEffectTimer = setTimeout(() => {
             magicEffect.remove();
+            this.magicEffectTimer = null;
         }, 2000);
     }
 

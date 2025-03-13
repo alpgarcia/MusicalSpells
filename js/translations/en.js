@@ -61,6 +61,10 @@ export const englishTranslations = {
         "defeatHighScore": "Impressive! Despite the defeat, your mastery of musical magic with {score} points has earned you a place among legends. It's time to inscribe your name in the ancient scrolls of the Hall of Fame!",
         "finalVictory": "You have defeated all wizards! You are the new Master Archmage!"
     },
+    "developer": {
+        "enabled": "Developer mode enabled",
+        "disabled": "Developer mode disabled"
+    },
     "map": {
         "title": "Duel Map",
         "progress": "Your progress in the magical path:",

@@ -1,0 +1,58 @@
+{
+  "name": "musical-spells",
+  "version": "0.6.0-beta",
+  "description": "A musical memory game with wizards",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "coverage": "c8 npm test"
+  },
+  "keywords": [
+    "game",
+    "music",
+    "education",
+    "memory"
+  ],
+  "author": "Alberto Pérez García-Plaza",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "jest": {
+    "testEnvironment": "jest-environment-jsdom",
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js"
+    },
+    "collectCoverageFrom": [
+      "js/**/*.js",
+      "!js/**/__tests__/**",
+      "!js/**/__mocks__/**",
+      "!js/translations/**"
+    ],
+    "transform": {}
+  },
+  "devDependencies": {
+    "c8": "^9.1.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^24.0.0",
+    "v8-to-istanbul": "^9.2.0"
+  },
+  "overrides": {
+    "inflight": "latest",
+    "glob": "latest",
+    "domexception": "npm:@types/domexception@latest",
+    "abab": {
+      ".": "latest",
+      "*": "latest"
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

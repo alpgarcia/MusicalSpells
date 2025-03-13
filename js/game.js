@@ -21,6 +21,7 @@
 import { KEYBOARD_MAPPING } from './audio.js';
 import { i18n } from './i18n.js';
 import { ScoreManager } from './scores.js';
+import { DEVELOPER_MODE } from './config.js';
 
 // Difficulty configuration
 export const DIFFICULTY_CONFIG = {
@@ -65,7 +66,8 @@ export class Game {
             difficulty: 'novice',
             availableNotes: [],
             playReferenceNote: true,
-            defeatedEnemies: []
+            defeatedEnemies: [],
+            isDeveloperModeActive: false  // Estado de activación del modo desarrollador
         };
         
         // Referencias a elementos de la pantalla de inscripción
@@ -88,6 +90,8 @@ export class Game {
         } else {
             console.warn('Algunos elementos de la pantalla de inscripción no se encontraron.');
         }
+
+        this.gameTimers = [];
     }
     
     // Initialize the game
@@ -128,11 +132,47 @@ export class Game {
             this.checkPlayerSequence();
         });
         
-        // Add keyboard listener
-        document.addEventListener('keydown', (event) => this.handleKeyPress(event));
+        // Add keyboard listener for game controls and developer mode
+        document.addEventListener('keydown', (event) => {
+            // Toggle developer mode if enabled in config
+            if (DEVELOPER_MODE.enabled && event.key === DEVELOPER_MODE.toggleKey) {
+                this.toggleDeveloperMode();
+                return;
+            }
+
+            // Auto-complete sequence with configured key in developer mode
+            if (DEVELOPER_MODE.enabled && 
+                this.state.isDeveloperModeActive && 
+                event.key === DEVELOPER_MODE.autoCompleteKey && 
+                this.state.isPlayerTurn &&
+                !this.state.hasFailed) {
+                this.autoCompleteSequence();
+                return;
+            }
+
+            // Handle regular key presses
+            this.handleKeyPress(event);
+        });
         
         // Load and display scores
         this.updateScoresTable();
+    }
+    
+    // Toggle developer mode
+    toggleDeveloperMode() {
+        this.state.isDeveloperModeActive = !this.state.isDeveloperModeActive;
+        this.ui.setBattleMessage(
+            this.state.isDeveloperModeActive ? 
+            'developer.enabled' : 
+            'developer.disabled'
+        );
+    }
+    
+    // Auto-complete sequence in developer mode
+    autoCompleteSequence() {
+        this.state.playerSequence = [...this.state.spellSequence];
+        this.audio.playSoundEffect('success');
+        this.handlePlayerSuccess();
     }
     
     // Start the game
@@ -247,7 +287,8 @@ export class Game {
         }
         
         // Play sequence
-        setTimeout(() => this.playSequence(), 1000);
+        const timer = setTimeout(() => this.playSequence(), 1000);
+        this.addTimer(timer);
     }
     
     // Play the spell sequence
@@ -261,9 +302,13 @@ export class Game {
             i++;
             if (i >= this.state.spellSequence.length) {
                 clearInterval(interval);
-                setTimeout(() => this.startPlayerTurn(), 500);
+                const timer = setTimeout(() => this.startPlayerTurn(), 500);
+                this.addTimer(timer);
             }
         }, 800);
+        
+        // Store interval ID as a timer to clean up if needed
+        this.addTimer(interval);
     }
     
     // Start player turn
@@ -315,12 +360,15 @@ export class Game {
     
     // Handle player success
     handlePlayerSuccess() {
+        // Desactivar botones durante la animación
         this.ui.toggleSpellButtons(false);
         
         const damage = 20 + Math.floor(Math.random() * 10);
         this.state.enemyHealth -= damage;
         
-        if (this.state.enemyHealth < 0) this.state.enemyHealth = 0;
+        if (this.state.enemyHealth < 0) {
+            this.state.enemyHealth = 0;
+        }
         
         this.ui.showMagicEffect('player-cast');
         this.ui.setBattleMessage('battle.spellHit', { damage });
@@ -331,7 +379,7 @@ export class Game {
             this.state.enemyMaxHealth
         );
         
-        // Sumar puntos por hechizo exitoso - Pasar estado de nota de referencia
+        // Sumar puntos por hechizo exitoso
         this.scoreManager.addSpellSuccess(this.state.currentEnemy.difficulty, this.state.playReferenceNote);
         this.updateBattleScore();
         
@@ -339,23 +387,21 @@ export class Game {
             this.state.isPlayerTurn = false;
             this.ui.setBattleMessage('battle.victory');
             
-            // Sumar bonus por victoria - Pasar estado de nota de referencia
+            // Añadir bonus por victoria
             this.scoreManager.addVictoryBonus(this.state.currentEnemy.difficulty, this.state.playReferenceNote);
             this.updateBattleScore();
             
-            // Retrasamos la transición para que se vea el mensaje
+            // Retardar para mostrar el mensaje
             setTimeout(() => {
                 this.audio.playSoundEffect('win');
                 
-                // Añadir el enemigo actual a la lista de derrotados si no está ya
-                if (!this.state.defeatedEnemies.includes(this.state.currentLevel)) {
-                    this.state.defeatedEnemies.push(this.state.currentLevel);
-                }
+                // Añadir enemigo a la lista de derrotados
+                this.state.defeatedEnemies.push(this.state.currentLevel);
                 
                 const currentScore = this.scoreManager.getCurrentScore();
                 this.state.currentLevel++;
-
-                // Si hemos derrotado a todos los magos
+                
+                // Victoria final
                 if (this.state.currentLevel >= this.enemies.length) {
                     if (this.scoreManager.isHighScore(currentScore)) {
                         this.showInscriptionScreen(currentScore, this.state.currentLevel - 1);
@@ -363,7 +409,6 @@ export class Game {
                         this.showResultScreen();
                     }
                 } else {
-                    // Volver al mapa después de una victoria que no sea la final
                     this.ui.initializeProgressMap(
                         this.enemies,
                         this.state.currentLevel,
@@ -373,9 +418,9 @@ export class Game {
                     );
                     this.ui.showScreen(this.ui.mapScreen);
                 }
-            }, 2500); // Aumentado de 1500 a 2500 ms
+            }, 2500);
         } else {
-            setTimeout(() => this.startEnemyTurn(), 2500); // Aumentado de 1500 a 2500 ms
+            setTimeout(() => this.startEnemyTurn(), 2500);
         }
     }
     
@@ -440,12 +485,19 @@ export class Game {
                 this.forceDefeatTransition();
             });
         } else {
-            setTimeout(() => this.startEnemyTurn(), 2500); // Aumentado de 1500 a 2500 ms
+            const timer = setTimeout(() => this.startEnemyTurn(), 2500); // Aumentado de 1500 a 2500 ms
+            this.addTimer(timer);
         }
     }
     
     // Método para forzar la transición después de una derrota
     forceDefeatTransition() {
+        this.state.isPlayerTurn = false;  // Asegurar que el turno del jugador termina
+        this._completeDefeatTransition();
+    }
+
+    // Método privado para completar la transición de derrota
+    _completeDefeatTransition() {
         // Obtener puntuación final
         const finalScore = this.scoreManager.getCurrentScore();
         
@@ -501,7 +553,7 @@ export class Game {
         // Añadir el contenedor de botones al DOM
         resultScreen.appendChild(buttonContainer);
     }
-    
+
     // Handle click on "Next Battle"
     handleNextBattle() {
         const currentScore = this.scoreManager.getCurrentScore();  // Usar getCurrentScore en lugar de calculateScore
@@ -594,9 +646,9 @@ export class Game {
     }
     
     // Show new score dialog
-    showHighscoreDialog(score, level) {
+    showHighscoreDialog(score = 0, level = 0) {
         this.finalScoreSpan.textContent = ScoreManager.formatScore(score);
-        this.finalLevelSpan.textContent = level;
+        this.finalLevelSpan.textContent = String(level);
         this.playerNameInput.value = '';
         this.highscoreDialog.classList.remove('hidden');
         this.playerNameInput.focus();
@@ -628,16 +680,6 @@ export class Game {
         }
     }
 
-    // Play reference note before battle
-    playReferenceNote() {
-        this.ui.setBattleMessage('battle.referenceNote');
-        setTimeout(() => {
-            this.audio.playNote('do', 1.0);
-            setTimeout(() => this.startEnemyTurn(), 1500);
-            
-        }, 1000);
-    }
-
     // Validar y mostrar la pantalla de inscripción
     validateAndShowInscription(score, level) {
         const inscriptionScreen = document.getElementById('inscription-screen');
@@ -647,16 +689,15 @@ export class Game {
         
         if (!inscriptionScreen || !scoreValue || !levelValue || !inscriptionName) {
             console.error('Elementos de inscripción no encontrados');
-            // Fallar graciosamente mostrando la pantalla de inicio
             this.ui.showScreen(this.ui.startScreen);
             return false;
         }
         
-        // Actualizar los valores directamente
+        // Actualizar valores
         scoreValue.textContent = ScoreManager.formatScore(score);
-        levelValue.textContent = level + 1;
-        
+        levelValue.textContent = String(level + 1);
         inscriptionName.value = '';
+        
         this.ui.showScreen(inscriptionScreen);
         
         // Enfocar el campo de nombre
@@ -669,7 +710,30 @@ export class Game {
 
     // Mostrar la pantalla de inscripción
     showInscriptionScreen(score, level) {
-        return this.validateAndShowInscription(score, level);
+        const inscriptionScreen = document.getElementById('inscription-screen');
+        const scoreValue = document.querySelector('.final-score .score-value');
+        const levelValue = document.querySelector('.final-level .level-value');
+        const inscriptionName = document.getElementById('inscription-name');
+        
+        if (!inscriptionScreen || !scoreValue || !levelValue || !inscriptionName) {
+            console.error('Elementos de inscripción no encontrados');
+            this.ui.showScreen(this.ui.startScreen);
+            return false;
+        }
+        
+        // Actualizar valores
+        scoreValue.textContent = ScoreManager.formatScore(score);
+        levelValue.textContent = String(level + 1);
+        inscriptionName.value = '';
+        
+        this.ui.showScreen(inscriptionScreen);
+        
+        // Enfocar el campo de nombre
+        setTimeout(() => {
+            inscriptionName.focus();
+        }, 100);
+        
+        return true;
     }
 
     // Manejar la confirmación de inscripción
@@ -690,14 +754,35 @@ export class Game {
         // Reproducir un efecto de sonido de éxito
         this.audio.playSoundEffect('success');
         
-        // Volver a la pantalla inicial
-        setTimeout(() => {
-            this.ui.showScreen(this.ui.startScreen);
-        }, 500);
+        // Mostrar la pantalla de inicio inmediatamente
+        this.ui.showScreen(this.ui.startScreen);
     }
 
     // Manejar la cancelación de inscripción
     handleInscriptionCancel() {
         this.ui.showScreen(this.ui.startScreen);
+    }
+
+    // Play reference note before battle
+    playReferenceNote() {
+        this.ui.setBattleMessage('battle.referenceNote');
+        setTimeout(() => {
+            this.audio.playNote('do', 1.0);
+            setTimeout(() => this.startEnemyTurn(), 1500);
+        }, 1000);
+    }
+
+    // Helper to manage timers
+    addTimer(timer) {
+        this.gameTimers.push(timer);
+    }
+
+    cleanup() {
+        // Clear all active timers
+        this.gameTimers.forEach(timer => clearTimeout(timer));
+        this.gameTimers = [];
+        
+        // Clean up audio effects
+        this.audio.cleanup();
     }
 }

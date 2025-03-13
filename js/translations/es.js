@@ -61,6 +61,10 @@ export const spanishTranslations = {
         "defeatHighScore": "¡Impresionante! A pesar de la derrota, tu dominio de la magia musical con {score} puntos te ha ganado un lugar entre las leyendas. ¡Es hora de inscribir tu nombre en los antiguos pergaminos del Salón de la Fama!",
         "finalVictory": "¡Has derrotado a todos los magos! ¡Eres el nuevo Archimago Maestro!"
     },
+    "developer": {
+        "enabled": "Modo desarrollador activado",
+        "disabled": "Modo desarrollador desactivado"
+    },
     "map": {
         "title": "Mapa de Duelos",
         "progress": "Tu progreso en el camino mágico:",
