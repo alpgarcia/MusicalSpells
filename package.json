@@ -18,7 +18,7 @@
   "author": "Alberto Pérez García-Plaza",
   "license": "GPL-3.0",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.22.1"
   },
   "jest": {
     "testEnvironment": "jest-environment-jsdom",
